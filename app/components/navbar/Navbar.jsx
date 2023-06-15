@@ -1,6 +1,7 @@
 import { Bars3Icon, GlobeEuropeAfricaIcon, XMarkIcon } from '@heroicons/react/24/solid'
+import { useScroll, motion } from 'framer-motion'
 import Link from 'next/link'
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 
 const NavLink = ({ children, href, className }) => {
     return (
@@ -15,9 +16,29 @@ const HamburgerButton = ({ isOpen, onClick }) => {
 }
 
 const Navbar = ({ menu, setMenu }) => {
-    return (
-        <div className={`fixed top-0 left-0 ${menu ? 'bg-transparent' : 'bg-white'} transition-colors w-full h-24 z-50 flex justify-between items-center px-10`}>
+    const { scrollY } = useScroll()
 
+    const [hidden, setHidden] = useState(false);
+
+    function update() {
+        if (scrollY.get() < scrollY.getPrevious()) {
+            setHidden(false)
+        } else if (scrollY.get() > 100 && scrollY.get() > scrollY.getPrevious()) {
+            setHidden(true)
+        }
+    }
+
+    useEffect(() => {
+        return scrollY.onChange(() => update())
+    })
+
+    const variants = {
+        visible: { y: 0 },
+        hidden: { y: -100 },
+    }
+
+    return (
+        <motion.nav variants={variants} animate={hidden ? "hidden" : "visible"} transition={{ ease: [0.1, 0.25, 0.3, 1], duration: 0.4 }} className={`fixed transition-all top-0 left-0 ${menu ? 'bg-transparent' : 'bg-white'} transition-colors w-full h-24 z-50 flex justify-between items-center px-10`}>
             <div className={`cursor-pointer ${menu ? "text-white" : "text-black"}`}>LOGO</div>
             <div className="flex justify-end items-center gap-10">
                 {!menu && (
@@ -39,7 +60,7 @@ const Navbar = ({ menu, setMenu }) => {
 
                 <HamburgerButton isOpen={menu} onClick={() => setMenu(!menu)} />
             </div>
-        </div>
+        </motion.nav>
     )
 }
 
